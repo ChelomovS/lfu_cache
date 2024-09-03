@@ -41,11 +41,11 @@ struct lfu_cache_t {
         frequency_.emplace(key, min_frequency_);
 
         if (lists_.count(min_frequency_) == 0) {
-            lists_[min_frequency_] = {};//REVIEW - 
+            lists_[min_frequency_] = {};
         }
 
         lists_.at(min_frequency_).emplace_front(key, slow_get_page(key));
-        list_iterator node = lists_.at(min_frequency_).begin();                                         //REVIEW - 
+        list_iterator node = lists_.at(min_frequency_).begin();
         nodes_.emplace(key, node);
         ++current_size_;
     }
