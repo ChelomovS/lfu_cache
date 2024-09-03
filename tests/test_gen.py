@@ -3,11 +3,11 @@ import random
 count_tests = 10
 
 for test_number in range(0, count_tests):
-    name_of_file = "test_" + f'{test_number + 1:02}' + ".txt"
+    name_of_file = "test_" + f'{test_number + 1:02}' + ".in"
     file = open(name_of_file, 'w')
 
     size_of_cache  = random.randint(0, 5000)
-    count_of_elems = random.randint(50000, 1000000)
+    count_of_elems = random.randint(50000, 500000)
 
     test_text = str(size_of_cache) + " " + str(count_of_elems) + "\n"
 
