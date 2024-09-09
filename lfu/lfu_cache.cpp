@@ -28,10 +28,9 @@ int main() {
             std::cout << "Error input" << std::endl;
             return 1;
         }
-
         cache.lookup_update(key, slow_get_page_int);
     }   
-
+    
     std::cout << cache.get_hits() << std::endl;
     return 0;
 }
