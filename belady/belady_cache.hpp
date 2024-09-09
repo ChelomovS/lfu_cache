@@ -13,16 +13,12 @@ template <typename Value, typename KeyT = int>
 struct belady_cache_t {
     long long capacity_;
     long long current_size_ = 0;
-
-    struct node_t {
-        KeyT key_;
-        Value value_;
-    };
+    size_t hits_ = 0;
 
     using position = size_t;
 
     std::unordered_map<KeyT, std::list<position>> positions_;
-    std::map<position, node_t> nodes_;
+    std::map<position, std::pair<KeyT, Value>>    nodes_;
 
     belady_cache_t(long long size_of_cache, std::vector<int>& elements): capacity_(size_of_cache) {
         position pos = 0;
@@ -37,47 +33,50 @@ struct belady_cache_t {
         }
     }
 
+    size_t get_hits() const {
+        return hits_;
+    }
+
     bool full() const {
         return current_size_ == capacity_;
     }
 
     bool find_in_cache(KeyT key) const {
         auto list_for_search = positions_.find(key)->second;
-        auto list_iterator = list_for_search.front();
+        auto list_iterator   = list_for_search.front();
         return nodes_.find(list_iterator) == nodes_.end() ? false : true;
     }
     
-    template <typename F> void push_page_into_cache(KeyT key, F slow_get_page) {
-        auto& list_for_search = positions_.find(key)->second; 
+    void push_page_into_cache(KeyT key, Value value) {
+        auto& elem_pos_list = positions_.find(key)->second; 
 
-        if (list_for_search.empty()) {
+        if (elem_pos_list.empty()) {
             positions_.erase(key);
             return;
         }
 
-        auto& new_elem_nearest_position = list_for_search.front();
+        auto& new_elem_nearest_position = elem_pos_list.front();
 
         if (full()) {
             auto farthest_elem = std::prev(nodes_.end());
             if (new_elem_nearest_position > farthest_elem->first) {
-                list_for_search.pop_front();
+                elem_pos_list.pop_front();
                 return;
             }
 
-            positions_[farthest_elem->second.key_].pop_front();
+            positions_.at(farthest_elem->second.first).pop_front();
             nodes_.erase(farthest_elem);
             --current_size_;
         }
-
-        nodes_.emplace(new_elem_nearest_position, node_t {key, slow_get_page(key)});
+        
+        nodes_.emplace(new_elem_nearest_position, std::make_pair(key, value));
         ++current_size_;
     }
 
     void cache_update(KeyT key) {
-        auto& target_list = positions_.find(key)->second;
-        auto nearest_position = target_list.front();
-
-        auto node_iterator = nodes_.find(nearest_position);
+        auto& target_list      = positions_.find(key)->second;
+        auto  nearest_position = target_list.front();
+        auto  node_iterator    = nodes_.find(nearest_position);
 
         target_list.pop_front();
  
@@ -93,20 +92,22 @@ struct belady_cache_t {
         nodes_.erase(node_iterator);
     }
 
-    template <typename F> bool lookup_update(KeyT key, F slow_get_page) {
-        if (capacity_ == 0) return false;
-        
+    template <typename F> Value lookup_update(KeyT key, F slow_get_page) {     
         if (!find_in_cache(key)) {
-            push_page_into_cache(key, slow_get_page);
-            return false;
+            Value value = slow_get_page(key);
+            push_page_into_cache(key, value);
+            return value;
         }
-        else {
-            cache_update(key);
-            return true;
-        }
+
+        auto list_for_search = positions_.at(key);
+        position pos = list_for_search.front();
+        Value value = nodes_.at(pos).second;
+        cache_update(key);
+        ++hits_;
+        return value;
     }
 };
 
-}; // namespace belady_cache
+} // namespace belady_cache
 
 #endif // BELADY_CACHE_HPP

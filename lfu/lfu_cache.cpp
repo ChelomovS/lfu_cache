@@ -18,7 +18,7 @@ int main() {
         return 1;
     }
     
-    caches::lfu_cache_t<int> c{capacity};
+    caches::lfu_cache_t<int> cache{capacity};
 
     for (long long i = 0; i < n; ++i) {
         int key = 0;
@@ -29,10 +29,9 @@ int main() {
             return 1;
         }
 
-        if (c.lookup_update(key, slow_get_page_int))
-            ++hits;
+        cache.lookup_update(key, slow_get_page_int);
     }   
 
-    std::cout << hits << std::endl;
+    std::cout << cache.get_hits() << std::endl;
     return 0;
 }

@@ -10,13 +10,15 @@ namespace caches {
 
 template <typename Value, typename KeyT = int>
 struct lfu_cache_t {
-    long long current_size_ = 0;
     long long capacity_;
+    long long current_size_ = 0;
+    size_t hits_ = 0;
+
     using list_iterator = typename std::list<std::pair<KeyT, Value> >::iterator;
     using frequency = size_t;
     using cache_list = typename std::list<std::pair<KeyT, Value>>;
-    std::unordered_map<KeyT, frequency> frequency_;
-    std::unordered_map<KeyT, list_iterator> nodes_;
+    std::unordered_map<KeyT, frequency>       frequency_;
+    std::unordered_map<KeyT, list_iterator>   nodes_;
     std::unordered_map<frequency, cache_list> lists_;
 
     frequency min_frequency_ = 1;
@@ -25,6 +27,10 @@ struct lfu_cache_t {
 
     bool full() const {
         return current_size_ == capacity_;
+    }
+
+    size_t get_hits() const {
+        return hits_;
     }
 
     void delete_element() {
@@ -38,7 +44,7 @@ struct lfu_cache_t {
         --current_size_;
     }
 
-    template <typename F> void insert_element(KeyT key, F slow_get_page) {
+    void insert_element(KeyT key, Value value) {
         min_frequency_ = 1;
         frequency_.emplace(key, min_frequency_);
 
@@ -46,7 +52,7 @@ struct lfu_cache_t {
             lists_[min_frequency_] = {};
         }
         cache_list& min_freq_list = lists_.at(min_frequency_);
-        min_freq_list.emplace_front(key, slow_get_page(key));
+        min_freq_list.emplace_front(key, value);
         list_iterator it = min_freq_list.begin();
         nodes_.emplace(key, it);
         ++current_size_;
@@ -80,19 +86,23 @@ struct lfu_cache_t {
         nodes_.emplace(key, elem_freq_list.begin());
     }
 
-    template <typename F> bool lookup_update(KeyT key, F slow_get_page) {
-        if (capacity_ == 0) return false;
-
+    template <typename F> Value lookup_update(KeyT key, F slow_get_page) {
         if (nodes_.count(key) == 0) {
             if (full()) 
                 delete_element();
 
-            insert_element(key, slow_get_page);
-            return false;
+            Value value = slow_get_page(key);
+
+            insert_element(key, value);
+            return value;
         }
 
-        update_element(key);
-        return true;
+        update_element(key); 
+        ++hits_;
+        frequency  elem_freq       = frequency_.at(key);        
+        cache_list list_for_search = lists_.at(elem_freq);
+        Value      value = list_for_search.begin()->second;
+        return value;
     }
 };
 

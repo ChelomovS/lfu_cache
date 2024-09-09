@@ -38,9 +38,8 @@ int main () {
 
     belady_cache::belady_cache_t<int> cache (cache_capacity, elements);
     for (long long i = 0; i < number_of_elems; ++i) {
-        if (cache.lookup_update(elements[(size_t)i], slow_get_page_int))
-            ++hits;
+        cache.lookup_update(elements[(size_t)i], slow_get_page_int);
     }
-    std::cout << hits << std::endl;
+    std::cout << cache.get_hits() << std::endl;
     return 0;
 }
