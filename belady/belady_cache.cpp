@@ -29,7 +29,7 @@ int main () {
     for (long long i = 0; i < number_of_elems; ++i) {
         int key = 0;
         std::cin >> key;
-        if ((key < 0)) {
+        if ((!std::cin.good()) || (key < 0)) {
             std::cout << "Error input" << std::endl;
             return 1;
         } 
@@ -38,7 +38,8 @@ int main () {
 
     belady_cache::belady_cache_t<int> cache (cache_capacity, elements);
     for (long long i = 0; i < number_of_elems; ++i) {
-        if (cache.lookup_update(elements[(size_t)i], slow_get_page_int)) ++hits;
+        if (cache.lookup_update(elements[(size_t)i], slow_get_page_int))
+            ++hits;
     }
     std::cout << hits << std::endl;
     return 0;

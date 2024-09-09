@@ -10,7 +10,6 @@
 namespace belady_cache {
 
 template <typename Value, typename KeyT = int>
-
 struct belady_cache_t {
     long long capacity_;
     long long current_size_ = 0;
@@ -34,7 +33,6 @@ struct belady_cache_t {
                 positions_[element] = {};
             else
                 pos_iterator->second.push_back(pos); 
-
             ++pos;                
         }
     }

@@ -13,7 +13,7 @@ int main() {
 
     std::cin >> capacity >> n;
 
-    if ((capacity < 0) || (n < 0)) {
+    if ((!std::cin.good()) || (capacity < 0) || (n < 0)) {
         std::cout << "Error input" << std::endl;
         return 1;
     }
@@ -24,7 +24,7 @@ int main() {
         int key = 0;
         std::cin >> key;
 
-        if (key < 0) {
+        if ((!std::cin.good()) || (key < 0)) {
             std::cout << "Error input" << std::endl;
             return 1;
         }

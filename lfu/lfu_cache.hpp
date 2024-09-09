@@ -28,10 +28,12 @@ struct lfu_cache_t {
     }
 
     void delete_element() {
-        list_iterator last_used_element = std::prev(lists_.at(min_frequency_).end());
+        cache_list& min_freq_list = lists_.at(min_frequency_);
+        list_iterator last_used_element = std::prev(min_freq_list.end());
         KeyT key_for_delete = last_used_element->first;
+
         frequency_.erase(key_for_delete);
-        lists_.at(min_frequency_).pop_back();
+        min_freq_list.pop_back();
         nodes_.erase(key_for_delete);
         --current_size_;
     }
@@ -43,17 +45,17 @@ struct lfu_cache_t {
         if (lists_.count(min_frequency_) == 0) {
             lists_[min_frequency_] = {};
         }
-
-        lists_.at(min_frequency_).emplace_front(key, slow_get_page(key));
-        list_iterator node = lists_.at(min_frequency_).begin();
-        nodes_.emplace(key, node);
+        cache_list& min_freq_list = lists_.at(min_frequency_);
+        min_freq_list.emplace_front(key, slow_get_page(key));
+        list_iterator it = min_freq_list.begin();
+        nodes_.emplace(key, it);
         ++current_size_;
     }
  
     void update_element(KeyT key) {
-        list_iterator iterator = nodes_.at(key);
-        KeyT key_emplace = iterator->first;
-        Value value_emplace = iterator->second;
+        list_iterator iterator      = nodes_.at(key);
+        KeyT key_for_emplace        = iterator->first;
+        Value value_for_emplace     = iterator->second;
         frequency element_frequency = frequency_.at(key);
 
         frequency_.erase(key);
@@ -73,15 +75,18 @@ struct lfu_cache_t {
         }
 
         frequency_.emplace(key, element_frequency);
-        lists_.at(element_frequency).emplace_front(key_emplace, value_emplace);
-        nodes_.emplace(key, lists_.at(element_frequency).begin());
+        cache_list& elem_freq_list = lists_.at(element_frequency);
+        elem_freq_list.emplace_front(key_for_emplace, value_for_emplace);
+        nodes_.emplace(key, elem_freq_list.begin());
     }
 
     template <typename F> bool lookup_update(KeyT key, F slow_get_page) {
         if (capacity_ == 0) return false;
 
         if (nodes_.count(key) == 0) {
-            if (full()) delete_element();
+            if (full()) 
+                delete_element();
+
             insert_element(key, slow_get_page);
             return false;
         }
