@@ -14,13 +14,13 @@ int main () {
 
     std::cin >> cache_capacity;
     if ((!std::cin.good()) || (cache_capacity < 0)) {
-        std::cout << "Error input 1" << std::endl;
+        std::cout << "Error input" << std::endl;
         return 1;
     }
     
     std::cin >> number_of_elems;
     if ((!std::cin.good()) || (number_of_elems < 0)) {
-        std::cout << "Error input 1" << std::endl;
+        std::cout << "Error input" << std::endl;
         return 1;
     }
 
@@ -30,7 +30,7 @@ int main () {
         int key = 0;
         std::cin >> key;
         if ((key < 0)) {
-            std::cout << "Error input 2" << std::endl;
+            std::cout << "Error input" << std::endl;
             return 1;
         } 
         elements.push_back(key);

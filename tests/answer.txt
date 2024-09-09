@@ -1,0 +1,41 @@
+
+test_01.in LFU hits:
+249113
+test_02.in LFU hits:
+438739
+test_03.in LFU hits:
+352533
+test_04.in LFU hits:
+51413
+test_05.in LFU hits:
+151975
+test_06.in LFU hits:
+122587
+test_07.in LFU hits:
+202346
+test_08.in LFU hits:
+266667
+test_09.in LFU hits:
+211043
+test_10.in LFU hits:
+76903
+test_01.in Belady hits:
+323825
+test_02.in Belady hits:
+438739
+test_03.in Belady hits:
+352533
+test_04.in Belady hits:
+57965
+test_05.in Belady hits:
+301242
+test_06.in Belady hits:
+122587
+test_07.in Belady hits:
+202346
+test_08.in Belady hits:
+266667
+test_09.in Belady hits:
+211043
+test_10.in Belady hits:
+139805
