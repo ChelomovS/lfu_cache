@@ -10,7 +10,6 @@ int slow_get_page_int(int key) {
 int main () {
     long long cache_capacity  = 0;
     long long number_of_elems = 0;
-    size_t hits = 0;
 
     std::cin >> cache_capacity;
     if ((!std::cin.good()) || (cache_capacity < 0)) {

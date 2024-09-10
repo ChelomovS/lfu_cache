@@ -32,9 +32,8 @@ struct belady_cache_t {
                                                 capacity_(size_of_cache) {
         position pos = 0;
         KeyT element = 0;
-
         for (Iterator i = begin; i < end; i++) {
-            KeyT element = *i;
+            element = *i;
             if (positions_.count(element) == 0)
                 positions_[element] = {};
             else {
