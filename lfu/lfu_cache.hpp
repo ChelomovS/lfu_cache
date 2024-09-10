@@ -13,7 +13,7 @@ struct lfu_cache_t {
     long long current_size_ = 0;
     size_t hits_ = 0;
 
-    using list_iterator = typename std::list<std::pair<KeyT, Value> >::iterator;
+    using list_iterator = typename std::list<std::pair<KeyT, Value>>::iterator;
     using frequency = size_t;
     using cache_list = typename std::list<std::pair<KeyT, Value>>;
 
@@ -48,11 +48,11 @@ struct lfu_cache_t {
         min_frequency_ = 1;
         frequency_.emplace(key, min_frequency_);
 
-        if (lists_.count(min_frequency_) == 0)
+        if (lists_.find(min_frequency_) == lists_.end())
             lists_[min_frequency_] = {};
 
         cache_list& min_freq_list = lists_.at(min_frequency_);
-        min_freq_list.emplace_front(key, value);
+        min_freq_list.push_front(std::make_pair(key, value));
         list_iterator it = min_freq_list.begin();
         nodes_.emplace(key, it);
         ++current_size_;
@@ -76,7 +76,7 @@ struct lfu_cache_t {
 
         ++element_frequency;
 
-        if (lists_.count(element_frequency) == 0) {
+        if (lists_.find(element_frequency) == lists_.end()) {
             lists_[element_frequency] = {};
         }
 
@@ -87,7 +87,7 @@ struct lfu_cache_t {
     }
 
     template <typename F> Value lookup_update(KeyT key, F slow_get_page) {
-        if (nodes_.count(key) == 0) {
+        if (nodes_.find(key) == nodes_.end()) {
             if (full())
                 delete_element();
 
@@ -99,10 +99,9 @@ struct lfu_cache_t {
 
         update_element(key);
         ++hits_;
-        frequency elem_freq = frequency_.at(key);        
-        cache_list list_for_search = lists_.at(elem_freq);
-        Value value = list_for_search.begin()->second;
-        return value;
+  
+        list_iterator node_with_value = nodes_.at(key);
+        return node_with_value->second;
     }
 };
 
