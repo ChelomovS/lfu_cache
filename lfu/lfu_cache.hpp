@@ -4,7 +4,6 @@
 #include <list>
 #include <unordered_map>
 #include <iterator>
-#include <assert.h>
 
 namespace caches {
 
@@ -17,6 +16,7 @@ struct lfu_cache_t {
     using list_iterator = typename std::list<std::pair<KeyT, Value> >::iterator;
     using frequency = size_t;
     using cache_list = typename std::list<std::pair<KeyT, Value>>;
+
     std::unordered_map<KeyT, frequency>       frequency_;
     std::unordered_map<KeyT, list_iterator>   nodes_;
     std::unordered_map<frequency, cache_list> lists_;
@@ -48,9 +48,9 @@ struct lfu_cache_t {
         min_frequency_ = 1;
         frequency_.emplace(key, min_frequency_);
 
-        if (lists_.count(min_frequency_) == 0) {
+        if (lists_.count(min_frequency_) == 0)
             lists_[min_frequency_] = {};
-        }
+
         cache_list& min_freq_list = lists_.at(min_frequency_);
         min_freq_list.emplace_front(key, value);
         list_iterator it = min_freq_list.begin();
@@ -88,7 +88,7 @@ struct lfu_cache_t {
 
     template <typename F> Value lookup_update(KeyT key, F slow_get_page) {
         if (nodes_.count(key) == 0) {
-            if (full()) 
+            if (full())
                 delete_element();
 
             Value value = slow_get_page(key);
@@ -97,11 +97,11 @@ struct lfu_cache_t {
             return value;
         }
 
-        update_element(key); 
+        update_element(key);
         ++hits_;
-        frequency  elem_freq       = frequency_.at(key);        
+        frequency elem_freq = frequency_.at(key);        
         cache_list list_for_search = lists_.at(elem_freq);
-        Value      value = list_for_search.begin()->second;
+        Value value = list_for_search.begin()->second;
         return value;
     }
 };

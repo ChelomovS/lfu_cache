@@ -14,7 +14,7 @@ int main() {
     std::cin >> capacity >> number_of_elems;
 
     if ((!std::cin.good()) || (capacity < 0) || (number_of_elems < 0)) {
-        std::cout << "Error input" << std::endl;
+        std::cerr << "Error input" << std::endl;
         return 1;
     }
     
@@ -24,8 +24,8 @@ int main() {
         int key = 0;
         std::cin >> key;
 
-        if ((!std::cin.good()) || (key < 0)) {
-            std::cout << "Error input" << std::endl;
+        if (!std::cin.good()) {
+            std::cerr << "Error input" << std::endl;
             return 1;
         }
         cache.lookup_update(key, slow_get_page_int);
