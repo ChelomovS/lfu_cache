@@ -13,6 +13,7 @@ template <typename Value, typename KeyT>
 struct belady_cache_t {
     size_t capacity_;
     size_t hits_ = 0;
+    size_t current_size_;
 
     using position = size_t;
 
@@ -67,7 +68,7 @@ struct belady_cache_t {
     }
 
     bool full() const {
-        return positions_.size() == capacity_;
+        return current_size_ == capacity_;
     }
 
     bool find_in_cache(KeyT key) const {
@@ -79,6 +80,7 @@ struct belady_cache_t {
     void push_page_into_cache(KeyT key, Value value) {
         positions_iter key_it = positions_.find(key);
         assert(key_it != positions_.end());
+
         positions_list& elem_pos_list = key_it->second; 
 
         if (elem_pos_list.empty()) {
@@ -92,6 +94,7 @@ struct belady_cache_t {
             assert(!nodes_.empty());
             nodes_iter farthest_elem_it = std::prev(nodes_.end());
             assert(farthest_elem_it != nodes_.end());
+            
             if (new_elem_nearest_position > farthest_elem_it->first) {
                 elem_pos_list.pop_front();
                 return;
@@ -101,23 +104,28 @@ struct belady_cache_t {
 
             positions_.at(key_of_farhest_elem).pop_front();
             nodes_.erase(farthest_elem_it);
+            --current_size_;
         }
 
         nodes_.emplace(new_elem_nearest_position, std::make_pair(key, value));
+        ++current_size_;
     }
 
     void cache_update(KeyT key) {
         positions_iter key_it = positions_.find(key);
         assert(key_it != positions_.end());
+
         positions_list& target_list = key_it->second;
         position nearest_position = target_list.front();
         nodes_iter node_iterator = nodes_.find(nearest_position);
         assert(node_iterator != nodes_.end());
+
         target_list.pop_front();
 
         if (target_list.empty()) {
             positions_.erase(key);            
             nodes_.erase(node_iterator);
+            --current_size_;
         }
         else {
             position next_pos = target_list.front();

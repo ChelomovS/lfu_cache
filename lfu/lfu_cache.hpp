@@ -36,13 +36,14 @@ struct lfu_cache_t {
     void delete_element() {
         cache_list& min_freq_list = lists_.at(min_frequency_);
         assert(!min_freq_list.empty());
+
         list_iterator last_used_element_it = std::prev(min_freq_list.end());
         assert(last_used_element_it != min_freq_list.end());
-        KeyT& key_for_delete = last_used_element_it->first;
 
+        KeyT& key_for_delete = last_used_element_it->first;
         frequency_.erase(key_for_delete);
-        min_freq_list.pop_back();
         nodes_.erase(key_for_delete);
+        min_freq_list.pop_back();
     }
 
     void insert_element(KeyT key, Value value) {
@@ -102,7 +103,7 @@ struct lfu_cache_t {
 
         list_iterator node_with_value = nodes_.at(key);
         frequency elem_freq = frequency_.at(key);
-        cache_list& list_with_elem = lists_.at(elem_freq);
+        const cache_list& list_with_elem = lists_.at(elem_freq);
         assert(node_with_value != list_with_elem.end());
         return node_with_value->second;
     }
