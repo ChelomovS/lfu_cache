@@ -17,7 +17,7 @@ int main() {
         return 1;
     }
     
-    caches::lfu_cache_t<int> cache{capacity};
+    caches::lfu_cache_t<int, int> cache{static_cast<size_t>(capacity)};
 
     for (long long i = 0; i < number_of_elems; ++i) {
         int key = 0;

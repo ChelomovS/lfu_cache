@@ -35,8 +35,9 @@ int main () {
         elements.push_back(key);
     }
 
-    belady_cache::belady_cache_t<int> cache(cache_capacity, 
-                                                elements.begin(), elements.end());
+    belady_cache::belady_cache_t<int, int> 
+                            cache(static_cast<size_t>(cache_capacity), 
+                                    elements.begin(), elements.end());
 
     for (long long i = 0; i < number_of_elems; ++i) {
         cache.lookup_update(elements[static_cast<size_t>(i)], slow_get_page_int);
