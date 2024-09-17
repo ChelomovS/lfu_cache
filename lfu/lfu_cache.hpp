@@ -46,7 +46,7 @@ struct lfu_cache_t {
         min_freq_list.pop_back();
     }
 
-    void insert_element(KeyT key, Value value) {
+    void insert_element(const KeyT& key, const Value& value) {
         min_frequency_ = 1;
         frequency_.emplace(key, min_frequency_);
 
@@ -59,7 +59,7 @@ struct lfu_cache_t {
         nodes_.emplace(key, it);
     }
  
-    void update_element(KeyT key) {
+    void update_element(const KeyT& key) {
         list_iterator iterator = nodes_.at(key);
         frequency element_frequency = frequency_.at(key);
         cache_list& elem_old_freq_list = lists_.at(element_frequency);
@@ -87,7 +87,7 @@ struct lfu_cache_t {
         nodes_.emplace(key_for_emplace, elem_new_freq_list.begin());
     }
 
-    template <typename F> Value lookup_update(KeyT key, F slow_get_page) {
+    template <typename F> Value lookup_update(const KeyT& key, F slow_get_page) {
         if (!nodes_.contains(key)) {
             if (full())
                 delete_element();
@@ -104,6 +104,7 @@ struct lfu_cache_t {
         list_iterator node_with_value = nodes_.at(key);
         frequency elem_freq = frequency_.at(key);
         const cache_list& list_with_elem = lists_.at(elem_freq);
+        
         assert(node_with_value != list_with_elem.end());
         return node_with_value->second;
     }

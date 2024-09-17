@@ -46,23 +46,6 @@ struct belady_cache_t {
         }
     }
 
-    belady_cache_t(size_t size_of_cache, const std::vector<KeyT>& elements): 
-                                                capacity_(size_of_cache) {
-        position pos = 0;
-
-        for (KeyT element : elements) {
-            if (!positions_.contains(element)) {
-                positions_list new_list{};
-                positions_.emplace(element, new_list);
-            }
-            else {
-                positions_list& list_for_push = positions_.at(element);
-                list_for_push.push_back(pos);
-            }
-            ++pos;
-        }
-    }
-
     size_t get_hits() const {
         return hits_;
     }
@@ -71,13 +54,13 @@ struct belady_cache_t {
         return current_size_ == capacity_;
     }
 
-    bool find_in_cache(KeyT key) const {
+    bool find_in_cache(const KeyT& key) const {
         const positions_list& list_for_search = positions_.at(key);
         position front_elem_pos = list_for_search.front();
         return nodes_.contains(front_elem_pos);
     }
 
-    void push_page_into_cache(KeyT key, Value value) {
+    void push_page_into_cache(const KeyT& key, const Value& value) {
         positions_iter key_it = positions_.find(key);
         assert(key_it != positions_.end());
 
@@ -111,7 +94,7 @@ struct belady_cache_t {
         ++current_size_;
     }
 
-    void cache_update(KeyT key) {
+    void cache_update(const KeyT& key) {
         positions_iter key_it = positions_.find(key);
         assert(key_it != positions_.end());
 
@@ -134,7 +117,7 @@ struct belady_cache_t {
         }
     }
 
-    template <typename F> Value lookup_update(KeyT key, F slow_get_page) {     
+    template <typename F> Value lookup_update(const KeyT& key, F slow_get_page) {     
         if (!find_in_cache(key)) {
             Value value = slow_get_page(key);
             push_page_into_cache(key, value);
